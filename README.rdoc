@@ -35,19 +35,12 @@ $ solidus -h
 
 Usage: solidus [options] command [target] [JSON data]
 
-Commands:
- - add_item <order_number> <data>
- - ..
 
-Options:
-    -u, --url   Solidus URL
-    -k, --key   Solidus API key
-    -t, --token Solidus guest token
 Development
 Install dependencies
 
 bundle install
 
-Run specs WARNING: checkout_spec.rb requires a running Solidus instance and writes Product and Order data to it
+Run specs:
 
 bundle exec rake spec
