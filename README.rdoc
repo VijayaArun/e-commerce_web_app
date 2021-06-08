@@ -21,8 +21,33 @@ Things you may want to cover:
 
 * Deployment instructions
 
-* ...
+Ruby Solidus API client
 
+Solidus 2.9+ with Solidus Auth (Devise)
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+Installation
+gem install solidus_client
+
+Command line
+Run solidus command
+
+$ solidus -h
+
+Usage: solidus [options] command [target] [JSON data]
+
+Commands:
+ - add_item <order_number> <data>
+ - ..
+
+Options:
+    -u, --url   Solidus URL
+    -k, --key   Solidus API key
+    -t, --token Solidus guest token
+Development
+Install dependencies
+
+bundle install
+
+Run specs WARNING: checkout_spec.rb requires a running Solidus instance and writes Product and Order data to it
+
+bundle exec rake spec
