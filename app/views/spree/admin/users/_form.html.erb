@@ -1,0 +1,170 @@
+<%= stylesheet_link_tag("spree/admin/user") %>
+
+<div data-hook="admin_user_form_fields" class="row">
+    <div class="alpha six columns">
+        <%= f.field_container :email do %>
+            <%= f.label :email %>
+            <% if can?(:update_email, @user) %>
+                <%= f.email_field :email, :class => 'fullwidth' %>
+            <% else %>
+                <span title="<%= Spree.t(:cannot_update_email) %>" class="fa fa-question-circle icon_link no-text with-tip"></span>
+                <%= f.email_field :email, :class => 'fullwidth', disabled: true %>
+            <% end %>
+            <%= error_message_on :user, :email %>
+        <% end %>
+     
+        <% if can? :display, Spree::Role %>
+            <div data-hook="admin_user_form_roles" class="field">
+                <%= label_tag nil, Spree::Role.model_name.human(count: :other) %>
+                <ul>
+                    <% if can? :manage, Spree::Role %>
+                    <%#  For default checked option while creating new user %>
+                    <% @user_roles = Spree::Role.where(name: ENV["ROLE_SALESMAN"]) unless @user.persisted? %>
+                        <% @roles.each do |role| %>
+                            <li>
+                                <%= radio_button_tag 'user[spree_role_ids][]', role.id, @user_roles.include?(role), id: "user_spree_role_#{role.name}"%>
+                                <% if role.name == ENV["ROLE_VENDOR"] %>
+                                    <%= label_tag "retailer", t("retailer") %>
+                                <% else %>
+                                    <%= label_tag "user_spree_role_#{role.name}", role.name %>
+                                <% end %>
+
+                            </li>
+                        <% end %>
+
+                    <% else %>
+                        <% @user_roles.each do |role| %>
+                            <%= role.name %>
+
+                        <% end %>
+                    <% end %>
+                </ul>
+            </div>
+        <% end %>
+    </div>
+
+    <div class="vendor-details omega six columns" style="display:none;">
+        <%- if @user.new_record? || @user.vendor_detail.nil? %>
+            <%= f.field_container :vendor_detail do %>
+                <%= f.fields_for :vendor_detail, @user.build_vendor_detail do |vd| %>
+                    <%= vd.label :retailer_linked_to %>
+                    <%= vd.collection_select(:salesman_id, list_salesmen, :id, :email, { :include_blank => Spree.t('match_choices.none'), :selected => created_by }, { :class => 'select2 fullwidth' }) %>
+                    <%= vd.label :gst_number %>
+                    <%= vd.text_field :gst_number, :class => 'fullwidth', :maxlength =>'15'%>
+                <% end -%>
+            <% end -%>
+        <% elsif @user.vendor_detail.try :present? -%>
+            <%= f.field_container :vendor_detail do %>
+                <%= f.fields_for :vendor_detail do |vd| %>
+                    <%= vd.label :retailer_linked_to %>
+                    <%= vd.collection_select(:salesman_id, list_salesmen, :id, :email, { :include_blank => Spree.t('match_choices.none'), :selected => created_by }, { :class => 'select2 fullwidth' }) %>
+                    <%= vd.label :gst_number %>
+                    <%= vd.text_field :gst_number, :class => 'fullwidth', :maxlength =>'15'%>
+                <% end -%>
+            <% end -%>
+        <% end -%>
+    </div>
+
+    <div data-hook="admin_user_form_password_fields" class="omega six columns" id= "password_fields" style="display: none;">
+        <%= f.field_container :password do %>
+            <%= f.label :password %>
+            <%= f.password_field :password, :class => 'fullwidth' %>
+            <%= f.error_message_on :password %>
+        <% end %>
+
+        <%= f.field_container :password do %>
+            <%= f.label :password_confirmation %>
+            <%= f.password_field :password_confirmation, :class => 'fullwidth' %>
+            <%= f.error_message_on :password_confirmation %>
+        <% end %>
+        <%- if @user.new_record? || @user.salesman_details.nil? %>
+            <div class="salesman_detail hidden">
+                <%= f.field_container :salesman_details do %>
+                    <%= f.fields_for :salesman_details, @user.build_salesman_details do |sd| %>
+                        <%= sd.label :identifier %>
+                        <small>(If not submitted will be filled with default value)</small>
+                        <%= sd.text_field :identifier, :class => 'fullwidth' %>
+                    <% end -%>
+                <% end -%>
+            </div>
+        <% elsif @user.salesman_details.try :present? -%>
+            <%= f.field_container :salesman_detail do %>
+                <label for="user_salesman_detail_attributes_identifier">Identifier</label>
+                <small>(can not be modified)</small>
+                <input type="text" name="salesman_identifier" value="<%= @user.salesman_details.identifier%>" disabled='disabled' class='fullwidth'>
+            <% end %>
+        <% end -%>
+    </div>
+</div>
+
+
+<script>
+    function check_identifier_field() {
+        if($('#user_spree_role_salesman')[0].checked){
+            $('.salesman_detail').removeClass('hidden');
+            $('#user_salesman_detail_attributes_identifier').prop('disabled', false);
+        } else {
+            $('.salesman_detail').addClass('hidden');
+            $('#user_salesman_detail_attributes_identifier').prop('disabled', true);
+        }
+    }
+
+    $('#created_by_id_display').on('change', function(event){
+        $('#user_created_by_id').val($(this).val());
+    });
+
+    $("#user_spree_role_admin, #user_spree_role_vendor, #user_spree_role_salesman").on('change', function(event){
+        check_identifier_field();
+        show_retailer_option();
+    })
+
+    check_identifier_field()
+    
+    function show_retailer_option() {
+        show_hide_gst_number();
+        vendor_linked_to_drop_down();
+    }
+    
+    function show_hide_gst_number() {
+        if ($("#user_spree_role_vendor")[0].checked) {
+            $(".vendor-details").show();
+        }
+        else {
+            $(".vendor-details").hide();
+        }       
+    }
+
+    function vendor_linked_to_drop_down() {
+        if ($("#user_spree_role_vendor")[0].checked) {
+            $(".vendor-details").show();
+        }
+        else {
+            $(".vendor-details").hide();
+        }
+    }
+
+    function update_password_fields(){
+        if($("#user_spree_role_vendor")[0].checked) {
+            $("#password_fields").hide();
+        }
+        else {
+            $("#password_fields").show();
+        }
+    }
+
+    $("#user_spree_role_admin, #user_spree_role_vendor, #user_spree_role_salesman")
+        .change(update_password_fields);
+
+    function updateSalesmanDropdown() {
+        $('#user_created_by_id').val($('#created_by_id_display').val());
+    }
+
+    $('#created_by_id_display').on('change', updateSalesmanDropdown );
+
+    show_retailer_option();
+    updateSalesmanDropdown(); 
+    update_password_fields();
+
+    $("#user_spree_role_admin, #user_spree_role_vendor, #user_spree_role_salesman")
+        .change(show_retailer_option);
+</script>

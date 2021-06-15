@@ -1,0 +1,54 @@
+<% content_for :page_title do %>
+  <%=  t("vendors_list") %>
+<% end %>
+
+<div id="container">
+    <div id="right">
+        <% @users = Spree::User.all %>
+        <%= form_tag '/vendor/login', :method => :post do |f| %><%=  %>
+        <% vendor_name = ['vendor', 'admin'] %>
+        <% vendor_with_role = Spree::Role.where("name IN (?)", vendor_name ).pluck(:id) %>
+
+        <% @vendors = @users.where(id: Spree::RoleUser.where(role_id: vendor_with_role).pluck(:user_id), created_by_id: spree_current_user.id) %>
+
+           <div class="field-block alpha four columns">
+               <div class="field">
+                    <%= select_tag "vendor-email", options_for_select(list_vendors), { :include_blank => true, :class => 'select2 fullwidth', "data-placeholder" => "Select a Retailer" } %>
+                 </div>
+            </div>
+            <div class="field-block alpha hidden four red outstanding_div">
+                <div class="field">Total Outstanding Amount: <span id="amount" class="inline"></span>
+                </div>
+            </div>
+
+             <div class="clearfix"></div>
+
+            <div class="actions filter-actions">
+              <div data-hook="admin_orders_index_search_buttons">
+                <%= button t(:proceed), 'save' %>
+              </div>
+            </div>
+        <% end %>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        function display_outstanding_option(){
+            var selected_option = $('#vendor-email').find('option:selected');
+            var outstanding_amount = selected_option.data('outstanding');
+            if(outstanding_amount && (parseFloat(outstanding_amount.slice(1)) != 0)){
+                $('.outstanding_div').removeClass('hidden');
+                $('.outstanding_div #amount').text(outstanding_amount);
+            } else {
+                $('.outstanding_div').addClass('hidden');
+                $('.outstanding_div #amount').text('');
+            }
+        }
+        $('#vendor-email').change(display_outstanding_option);
+        display_outstanding_option();
+
+    })
+</script>

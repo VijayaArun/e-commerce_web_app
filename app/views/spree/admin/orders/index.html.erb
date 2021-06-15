@@ -1,0 +1,356 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:listing_orders) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button Spree.t(:toggle_filters), 'search', nil, :id => 'search' %>
+  </li>
+<% end if can? :edit, Spree::Order.new %>
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <div data-hook="admin_orders_index_search">
+    <%= search_form_for [:admin, @search] do |f| %>
+      <div class="field-block alpha four columns">
+        <div class="date-range-filter field">
+          <%= label_tag :q_created_at_gt, Spree.t(:date_range) %>
+          <div class="date-range-fields">
+            <%= f.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => params[:q][:created_at_gt], :placeholder => Spree.t(:start) %>
+
+            <span class="range-divider">
+              <i class="fa fa-arrow-right"></i>
+            </span>
+
+            <%= f.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => params[:q][:created_at_lt], :placeholder => Spree.t(:stop) %>
+          </div>
+        </div>
+
+        <div class="field" hidden="true">
+          <%= label_tag :q_state_eq, Spree.t(:status) %>
+          <%= f.select :state_eq, Spree::Order.state_machines[:state].states.collect {|s| [Spree.t("order_state.#{s.name}"), s.value]}, {:include_blank => true}, :class => 'select2' %>
+        </div>
+
+        <div class="field" hidden="true">
+          <%= label_tag nil, Spree.t(:promotion) %>
+          <%= f.text_field :promotions_codes_value_cont, :size => 25 %>
+        </div>
+
+        <div class="field" hidden="true">
+          <%= label_tag nil, Spree.t(:shipment_number) %>
+          <%= f.text_field :shipments_number_cont %>
+        </div>
+
+        <div class="field checkbox">
+          <label>
+            <%= f.check_box :state_not_eq, {:checked => @hide_canceled_orders}, '1', '0' %>
+            <%= Spree.t(:hide_canceled_orders) %>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag :q_number_cont, Spree.t(:order_number, :number => '') %>
+          <%= f.text_field :number_cont %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :q_email_cont, Spree.t(:email) %>
+          <%= f.text_field :email_cont %>
+        </div>
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag :q_bill_address_company_cont, Spree.t(:company) %>
+          <%= f.text_field :bill_address_company_cont, :size => 25 %>
+        </div>
+        <div class="field" hidden="true">
+          <%= label_tag :q_bill_address_lastname_start, Spree.t(:last_name_begins_with) %>
+          <%= f.text_field :bill_address_lastname_start, :size => 25%>
+        </div>
+      </div>
+
+      <div class="omega four columns">
+        <div class="field checkbox">
+          <label>
+            <%= f.check_box :completed_at_not_null, {:checked => @show_only_completed}, '1', '0' %>
+            <%= Spree.t(:show_only_complete_orders) %>
+          </label>
+        </div>
+      </div>
+
+      <div class="omega eight columns">
+        <div class="field" data-hook="sku-select">
+          <%= label_tag :q_taxons_id_in, Spree.t(:item) %>
+          <%= f.text_field :taxons_id_in, class: "item_autocomplete fullwidth" %>
+        </div>
+      </div>
+
+      <div class="clearfix"></div>
+
+      <div class="actions filter-actions">
+        <div data-hook="admin_orders_index_search_buttons">
+          <%= button Spree.t(:filter_results), 'search' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+<% unless @unread_orders.empty? %>
+  <fieldset data-hook="taxon_products">
+    <legend align="center"><%= Spree.t(:unread_orders) %></legend>
+    <% if @unread_orders.any? %>
+      <table class="index" id="listing_unread_orders" data-hook>
+        <colgroup>
+           <col style="width: 13%;">
+           <col style="width: 10%;">
+           <col style="width: 10%;">
+           <col style="width: 12%;">
+           <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+             <col style="width: 12%;">
+           <% end %>
+           <col style="width: 25%;">
+           <col style="width: 10%;">
+           <col style="width: 8%;">
+        </colgroup>
+        <thead>
+          <tr data-hook="admin_orders_index_headers">
+            <th>
+              <input id="order_unread_check" name="order_unread_check" type="checkbox" value="0" >
+            </th>
+            <% if @show_only_completed %>
+              <th><%= sort_link @search, :completed_at %></th>
+            <% else %>
+              <th><%= sort_link @search, :created_at %></th>
+            <% end %>
+            <th><%= sort_link @search, :number %></th>
+            <th><%= sort_link @search, Spree.t(:outstanding_amount) %></th>
+            <th><%= sort_link @search, Spree.t(:company_name) %></th>
+            <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+              <th><%= sort_link @search, :shipment_state %></th>
+            <% end %>
+            <th><%= sort_link @search, :total %></th>
+            <th data-hook="admin_orders_index_header_actions" class="actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+        <% @unread_orders.each do |order| %>
+          <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
+            <td class="align-center">
+              <%= check_box_tag "order_#{order.number}", "#{order.number}", false, :disabled => order.send("can_cancel?") ? nil : "disabled" %>
+            </td>
+            <td class="align-center"><%= l (@show_only_completed ? order.completed_at : order.created_at).to_date %></td>
+            <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+            <td>
+              <% if order.user %>
+                <%= order.user.display_total_outstanding_amount.to_html %>
+              <% end %>
+            </td>
+            <td>
+              <% if order.user %>
+                <%= link_to list_user_details(order.user), edit_admin_user_path(order.user) %>
+              <% end %>
+            </td>
+            <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+              <td class="align-center"><span class="state <%= order.shipment_state %>"><%= Spree.t("shipment_states.#{order.shipment_state}") if order.shipment_state %></span></td>
+            <% end %>
+            <td class="align-center"><%= order.display_total.to_html %></td>
+            <td class='actions align-center' data-hook="admin_orders_index_row_actions">
+              <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
+              <% if order.send("can_cancel?") %>
+                <%= link_to_with_icon 'trash', "", cancel_admin_order_path(order), :no_text => true, method: :put %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <div class="field four columns">
+        <%= button_link_to Spree.t(:delete_selected), 'javascript:;', {:icon => 'none', :class => 'delete_unread_selected'} %>
+      </div>
+    <% else %>
+      <div class="alpha twelve columns no-objects-found">
+        <%= render 'spree/admin/shared/no_objects_found',
+                   resource: Spree::Order,
+                   new_resource_url: spree.new_admin_order_path %>
+      </div>
+    <% end %>
+    <%= paginate @unread_orders, param_name: "unread_page", theme: "solidus_admin" %>
+  </fieldset>
+<% end %>
+  
+<fieldset data-hook="taxon_products">
+  <legend align="center"><%= Spree.t(:read_orders) %></legend>
+  <% if @read_orders.any? %>
+    <table class="index" id="listing_read_orders" data-hook>
+      <colgroup>
+         <col style="width: 13%;">
+         <col style="width: 10%;">
+         <col style="width: 10%;">
+         <col style="width: 12%;">
+         <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+           <col style="width: 12%;">
+         <% end %>
+         <col style="width: 25%;">
+         <col style="width: 10%;">
+         <col style="width: 8%;">
+      </colgroup>
+      <thead>
+        <tr data-hook="admin_orders_index_headers">
+          <th>
+            <input id="order_read_check" name="order_read_check" type="checkbox" value="0">
+          </th>
+          <% if @show_only_completed %>
+            <th><%= sort_link @search, :completed_at %></th>
+          <% else %>
+            <th><%= sort_link @search, :created_at %></th>
+          <% end %>
+          <th><%= sort_link @search, :number %></th>
+          <th><%= sort_link @search, Spree.t(:outstanding_amount) %></th>
+          <th><%= sort_link @search, Spree.t(:company_name) %></th>
+          <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+            <th><%= sort_link @search, :shipment_state %></th>
+          <% end %>
+          <th><%= sort_link @search, :total %></th>
+          <th data-hook="admin_orders_index_header_actions" class="actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+      <% @read_orders.each do |order| %>
+        <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
+          <td class="align-center">
+            <%= check_box_tag "order_#{order.number}", "#{order.number}", false, :disabled => order.send("can_cancel?") ? nil : "disabled" %>
+          </td>
+          <td class="align-center"><%= l (@show_only_completed ? order.completed_at : order.created_at).to_date %></td>
+          <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+          <td>
+            <% if order.user %>
+              <%= order.user.display_total_outstanding_amount.to_html %>
+            <% end %>
+          </td>
+          <td>
+            <% if order.user %>
+              <%= link_to list_user_details(order.user), edit_admin_user_path(order.user) %>
+            <% end %>
+          </td>
+          <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+            <td class="align-center"><span class="state <%= order.shipment_state %>"><%= Spree.t("shipment_states.#{order.shipment_state}") if order.shipment_state %></span></td>
+          <% end %>
+          <td class="align-center"><%= order.display_total.to_html %></td>
+          <td class='actions align-center' data-hook="admin_orders_index_row_actions">
+            <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
+            <% if order.send("can_cancel?") %>
+              <%= link_to_with_icon 'trash', "", cancel_admin_order_path(order), :no_text => true, method: :put %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    <div class="field four columns">
+      <%= button_link_to Spree.t(:delete_selected), 'javascript:;', {:icon => 'none', :class => 'delete_read_selected'} %>
+    </div>
+  <% else %>
+    <div class="alpha twelve columns no-objects-found">
+      <%= render 'spree/admin/shared/no_objects_found',
+                   resource: Spree::Order,
+                   new_resource_url: spree.new_admin_order_path %>
+    </div>
+  <% end %>
+  <%= paginate @read_orders, param_name: "read_page", theme: "solidus_admin" %>
+</fieldset>
+
+<script>
+    $(document).ready(function () {
+        $("#table-filter").hide();
+        $("#search").on("click", function () {
+            $("#table-filter").toggle();
+        });
+
+        if ($("#order_unread_check")[0].length) {
+            $("#order_unread_check")[0].checked = false;
+        }
+        if ($("#order_read_check")[0].length) {
+            $("#order_read_check")[0].checked = false
+        };
+
+        $("#order_unread_check").on("click", function () {
+            if ($("#order_unread_check").is(':checked')) {
+                $('#listing_unread_orders td input[type="checkbox"]').each(function () {
+                    if (!$(this).is(":disabled")) {
+                        this.checked = true;
+                    }
+                });
+            } else {
+                $('#listing_unread_orders td input[type="checkbox"]').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $("#order_read_check").on("click", function () {
+            if ($("#order_read_check").is(':checked')) {
+                $('#listing_read_orders td input[type="checkbox"]').each(function () {
+                    if (!$(this).is(":disabled")) {
+                        this.checked = true;
+                    }
+                });
+            } else {
+                $('#listing_read_orders td input[type="checkbox"]').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $(".delete_unread_selected").on("click", function () {
+            var deleteOrderNos = [];
+            $('#listing_unread_orders td input[type="checkbox"]').each(function () {
+                if (this.checked) {
+                    deleteOrderNos.push(this.value);
+                }
+            });
+
+            deleteOrders(deleteOrderNos);
+        });
+
+        $(".delete_read_selected").on("click", function () {
+            var deleteOrderNos = [];
+            $('#listing_read_orders td input[type="checkbox"]').each(function () {
+                if (this.checked) {
+                    deleteOrderNos.push(this.value);
+                }
+            });
+
+            deleteOrders(deleteOrderNos);
+        });
+
+        function deleteOrders(orderNos) {
+            $.ajax({
+                url: '/admin/orders/cancel_multiple_orders',
+                type: 'POST',
+                data: {
+                    "token": Spree.api_key,
+                    "order_nos": orderNos
+                },
+                async: true,
+                cache: false,
+                success: function (response) {
+                    if (response.error) {
+                        show_flash('error', response.error);
+                    }
+                    if (response.success){
+                        show_flash('success', response.success);
+                        location.reload();
+                    }
+                }
+            });
+        }
+    });
+
+</script>

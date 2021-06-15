@@ -1,0 +1,38 @@
+<div data-hook="admin_user_form_fields" class="row">
+  <div class="alpha six columns">
+    <%= f.field_container :email do %>
+      <%= f.label :email %>
+      <% if can?(:update_email, @user) %>
+        <%= f.email_field :email, :class => 'fullwidth' %>
+      <% else %>
+        <span title="<%= Spree.t(:cannot_update_email) %>" class="fa fa-question-circle icon_link no-text with-tip"></span>
+        <%= f.email_field :email, :class => 'fullwidth', disabled: true %>
+      <% end %>
+      <%= error_message_on :user, :email %>
+    <% end %>
+
+    <div class="gst-number-holder alpha six columns">
+    <%- if @user.new_record? || @user.vendor_detail.nil? %>
+      <%= f.field_container :vendor_detail do %>
+        <%= f.fields_for :vendor_detail, @user.build_vendor_detail do |vd| %>
+          <%= vd.label :gst_number %>
+          <%= vd.text_field :gst_number, :class => 'fullwidth', :maxlength =>'15'%>
+        <% end -%>
+      <% end -%>
+    <% elsif @user.vendor_detail.try :present? -%>
+        <%= f.field_container :vendor_detail do %>
+            <%= f.fields_for :vendor_detail do |vd| %>
+                <%= vd.label :gst_number %>
+                <%= vd.text_field :gst_number, :class => 'fullwidth', :maxlength =>'15'%>
+            <% end -%>
+        <% end -%>
+    <% end -%>
+  </div>
+
+  <div data-hook="bill_address_wrapper" class="alpha six columns">
+     <%= f.fields_for :bill_address, @user.bill_address || Spree::Address.build_default do |ba_form| %>
+      <%= render :partial => 'spree/admin/shared/address_form', :locals => { :f => ba_form, :type => "shipping" } %>
+    <% end %>
+  </div>
+  </div>
+</div>

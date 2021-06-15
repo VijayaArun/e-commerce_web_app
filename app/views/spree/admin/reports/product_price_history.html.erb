@@ -1,0 +1,39 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:product_price_history) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li><%= link_to_with_icon 'arrow-left', Spree.t(:back_to_reports_list), spree.admin_reports_url, :class => 'button' %></li>
+<% end %>
+
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:filter_options) %>
+<% end %>
+
+
+
+<table class="admin-report" data-hook="visit">
+  <thead>
+    <tr>
+      <th><%= Spree.t(:product_name) %></th>
+      <th><%= Spree.t(:amount_type) %></th>
+      <th><%= Spree.t(:amount) %></th>
+      <th><%= Spree.t(:date_time) %></th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <% if @data.present? %>
+    <% @data.each do |rows| %>
+      <tr class="align-center">
+        <td><%= link_to rows[:product_name], edit_admin_product_path(rows[:product_name]) %></td>
+        <td><%= rows[:amount_type] %></td>
+        <td><%= rows[:price] %></td>
+        <td><%= rows[:updated_at] %></td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+<%= paginate @data, theme: "solidus_admin" %>

@@ -1,0 +1,223 @@
+<% if params[:item_id].nil? %>
+  <div class="row">
+    <%= paginate @variants, theme: "solidus_admin" %>
+  </div>
+<% end %>
+<table class="index stock-table" id="listing_product_stock">
+  <colgroup>
+    <col style="width: 50%" />
+    <col style="width: 20%" />
+    <col style="width: 10%" />
+    <col style="width: 10%" />
+    <col style="width: 10%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th><%= Spree.t(:item) %></th>
+      <th><%= Spree.t(:set_size) %></th>
+      <th><%= Spree::StockLocation.model_name.human %></th>
+      <th><%= Spree.t(:backorderable_header) %></th>
+      <th><%= Spree.t(:count_on_hand) %></th>
+    </tr>
+  </thead>
+  <% variants.each do |variant| %>
+    <%- locations_without_items = @stock_item_stock_locations - variant.stock_items.flat_map(&:stock_location) %>
+    <%- display_add_row = locations_without_items.any? && can?(:create, Spree::StockItem) %>
+    <%- row_count = @stock_item_stock_locations.count + 2 %>
+    <tbody class="variant-stock-items">
+      <tr id="<%= spree_dom_id variant %>">
+        <td class="align-center no-padding" rowspan="<%= row_count %>">
+          <div class='variant-container'>
+            <div class='variant-image change-image'>
+              <%= image_tag(variant.display_image(fallback: false).attachment(:small)) %>
+              <input type="file" name="image[<%= variant.id%>][attachment]" class="product_images_attachment" style="display: none">
+            </div>
+            <div class='variant-details'>
+              <table class='stock-variant-field-table'>
+                <tbody>
+                  <% @variant_display_attributes.each do |display_attribute| %>
+                    <%if display_attribute[:editable] %>
+                      <tr class="stock-variant-edit-row">
+                        <td><%= Spree.t(display_attribute[:translation_key]) %></td>
+                        <td class="fullwidth">
+                          <input class="fullwidth" name="variant[<%= variant.id%>][name]" type="text" value="<%= variant.send(display_attribute[:attr_name]) %>">
+                        </td>
+                      </tr>
+                    <% else %>
+                      <tr>
+                        <td><%= Spree.t(display_attribute[:translation_key]) %></td>
+                        <td class="fullwidth">
+                          <%= variant.send(display_attribute[:attr_name]) %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+        <td class="align-center fullwidth variant-edit-set-size" rowspan="<%= row_count %>">
+          <input class="fullwidth" name="variant[<%= variant.id%>][setsize]" type="text" value="<%= variant.product.product_detail.set_size %>">
+        </td>
+      </tr>
+      <% variant.stock_items.each do |item| %>
+        <% if @stock_item_stock_locations.include?(item.stock_location) %>
+          <tr class="stock-item-edit-row">
+            <%# This is rendered in JS %>
+              <td class="align-center"><%= item.stock_location.name %></td>
+              <td class="align-center">
+                <%- if item.backorderable %>
+                  <input id="stock_item_<%=item.id%>_backorderable" name="stock_items[<%= item.id%>][backorderable]" type="checkbox" value="1" checked="checked" >
+                <%- else %>
+                  <input id="stock_item_<%=item.id%>_backorderable" name="stock_items[<%= item.id%>][backorderable]" type="checkbox" value="0" >
+                <%- end %>
+              </td>
+              <td class="align-center">
+                  <input class="fullwidth" name="stock_items[<%= item.id%>][count_on_hand]" type="number" value="<%= item.count_on_hand%>">
+              </td>
+          </tr>
+        <% end %>
+      <% end %>
+
+    </tbody>
+  <% end %>
+</table>
+<% if params[:item_id].nil? %>
+  <%= paginate @variants, theme: "solidus_admin" %>
+<% end %>
+<div class="field four columns right">
+  <%= button_link_to Spree.t(:update_all), 'javascript:;', {:icon => 'none', :class => 'update_all', :target => '_blank'} %>
+  <% if !params[:item_id].nil? %>
+    <%= button_link_to Spree.t(:back), spree.admin_path + '/taxonomies/' + params[:taxonomy_id] + '/taxons/' + params[:item_id] + '\edit', {:icon => 'none', :class => 'back_btn'} %>
+  <% end %>
+</div>
+<div class="field eight columns alpha">
+  <div class="field">
+    <label for="remark_field" class="columns field">Remark:</label>
+    <input id="remark_field" name="remark" class="remark_field columns six" placeholder="Type remark for bulk update" multiple="remark" type="text">
+  </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".variant-image img").on("click", function () {
+            var $targetImg = $(this);
+
+            $targetImg.parent().find(".product_images_attachment")
+                .click()
+                .off("change").on("change", function () {
+                    var fr = new FileReader();
+                    fr.onload = function () {
+                        $targetImg[0].src = fr.result;
+                    };
+                    fr.readAsDataURL(this.files[0]);
+                });
+        })
+    });
+
+    getStockItemData =  function () {
+        var stock_items = {},
+            name,
+            stockName,
+            key;
+
+        $('.stock-item-edit-row input[type="number"]').each(function(index, ele){
+            name = $(ele).attr("name");
+            stockName = name.match(/([0-9]+)/)[1];
+            key = name.match(/\[(\w\D+)\]/)[1];
+
+            if (!stock_items[stockName]) {
+                stock_items[stockName] = {};
+                stock_items[stockName][key] = $(ele).val();
+            } else {
+                stock_items[stockName][key] = $(ele).val();
+            }
+        });
+
+        $('.stock-item-edit-row input[type="checkbox"]').each(function(index, ele){
+            name = $(ele).attr("name");
+            stockName = name.match(/([0-9]+)/)[1];
+            key = name.match(/\[(\w\D+)\]/)[1];
+
+            if (!stock_items[stockName] && $(ele).prop("checked")) {
+                stock_items[stockName] = {};
+                stock_items[stockName][key] = $(ele).val();
+            } else if ($(ele).prop("checked")) {
+                stock_items[stockName][key] = $(ele).prop("checked");
+            }
+        });
+        return stock_items;
+    };
+
+    getVariantData = function () {
+        var variant = {},
+            name,
+            variantNumber,
+            key;
+
+        $('.stock-variant-edit-row input').each(function(index, ele){
+            name = $(ele).attr("name");
+            variantNumber = name.match(/([0-9]+)/)[1];
+            key = name.match(/\[(\w\D+)\]/)[1];
+
+            if (!variant[variantNumber]) {
+                variant[variantNumber] = {};
+                variant[variantNumber][key] = $(ele).val();
+            } else {
+                variant[variantNumber][key] = $(ele).val();
+            }
+        });
+        $('.variant-edit-set-size input').each(function (index, ele) {
+            name = $(ele).attr("name");
+            variantNumber = name.match(/([0-9]+)/)[1];
+            key = name.match(/\[(\w\D+)\]/)[1];
+
+            if (!variant[variantNumber]) {
+                variant[variantNumber] = {};
+                variant[variantNumber][key] = $(ele).val();
+            } else {
+                variant[variantNumber][key] = $(ele).val();
+            }
+        });
+        return variant;
+    };
+
+    getImageData = function (formData) {
+        $('input[type="file"]').each(function (index, ele) {
+            name = $(ele).attr("name");
+            variantNumber = name.match(/([0-9]+)/)[1];
+
+            if (ele.files[0]) {
+                formData.append('image'+ variantNumber, ele.files[0]);
+            }
+        });
+    };
+
+    $('a.update_all').click(function(){
+        var formData = new FormData();
+
+        formData.append('stock_items', JSON.stringify(this.getStockItemData()));
+        formData.append('variant', JSON.stringify(this.getVariantData()));
+        formData.append('remark', $('#remark_field').val());
+        getImageData(formData);
+
+      $.ajax({
+        url: '/api/stock_items/update_multiple',
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: 'PATCH',
+        headers: { "X-Spree-Token": Spree.api_key },
+        statusCode: {
+          422: function (a, b, c) {
+            show_flash('error', 'Some Error Occurred')
+          },
+          200: function(data){
+            show_flash('success', 'Updated Successfully')
+            $('#remark_field').val('');
+            window.location.href = $('.back_btn').attr("href");
+          }
+        }
+      })
+    }.bind(this))
+</script>

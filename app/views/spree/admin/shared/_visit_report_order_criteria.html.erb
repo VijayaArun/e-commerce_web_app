@@ -1,0 +1,38 @@
+<%= search_form_for @search, :url => spree.visit_admin_reports_path  do |s| %>
+  <div class="field">
+
+    
+<%=  s.select :salesman_id_cont, options_for_select(list_salesmen,params[:q][:salesman_id_cont]),{:prompt => 'Select a Salesman'}, { :include_blank => true,:class => 'select2' }%>
+
+  &nbsp 
+
+<%=  s.select :vendor_id_cont, options_for_select(get_retailers_for_reports,params[:q][:vendor_id_cont]),{prompt: "Select a Retailer"}, { :include_blank => true, :class => 'select2'}%>
+      </div>
+
+  <div class="date-range-filter field align-center">
+    <%= label_tag :q_created_at_gt, Spree.t(:start), :class => 'inline' %>
+    <%= s.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => datepicker_field_value(params[:q][:created_at_gt]) %>
+        
+    <span class="range-divider">
+      <i class="fa fa-arrow-right"></i>
+    </span>
+
+    <%= s.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => datepicker_field_value(params[:q][:created_at_lt]) %>
+    <%= label_tag :q_created_at_lt, Spree.t(:end), :class => 'inline' %>
+  </div>
+
+  <div class="actions filter-actions">
+    <%= button Spree.t(:search), 'search'  %>
+  </div>
+<% end %>
+<!-- <script>
+  $('#q_salesman_id_cont').change(function() {
+    $.ajax({
+          type: 'GET',
+          url: "/admin/reports/visit",
+          data: 'salesman_selected=' +  $('#q_salesman_id_cont').find(":selected").text(),
+          dataType: 'script'
+      })
+    });
+  $('#q_salesman_id_cont').selectpicker('refresh')
+</script> -->

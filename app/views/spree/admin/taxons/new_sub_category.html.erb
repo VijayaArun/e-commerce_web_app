@@ -1,0 +1,21 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:create_sub_category) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:back_to_taxonomies_list), spree.admin_taxonomies_path, :icon => 'arrow-left' %>
+  </li>
+<% end %>
+<% form_url = new_sub_category_admin_taxons_path %>
+<%= form_for [:admin, @taxon], :url => form_url, :html => { :multipart => true } do |f| %>
+  <%= render 'new_sub_category_form', :f => f %>
+  <%= render :partial => 'spree/admin/shared/new_resource_links' %>
+<% end %>
+
+<script>
+    window.onunload = refreshParent;
+    function refreshParent() {
+      window.opener.refreshItem();
+    }
+</script>

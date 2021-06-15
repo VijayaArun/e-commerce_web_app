@@ -1,0 +1,24 @@
+<% content_for :page_title do %>
+<!--<%=  t("created_successfully") %> -->
+  <%= Spree.t(:new_user) %>
+<% end %>
+
+<div data-hook="admin_user_new_form_header">
+  <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @user } %>
+</div>
+<div data-hook="admin_user_new_form">
+  <%= form_for [:admin, @user], url: add_vendor_path, method: :post do |f| %>
+    <%= render :partial => 'form', :locals => { :f => f } %>
+
+    <div data-hook="admin_user_new_form_buttons">
+      <%= render :partial => 'spree/admin/shared/new_resource_links' %>
+    </div>
+  <% end %>
+
+  <% if flash[:success] %>
+    <div class="alert alert-success alert-dismissable">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <strong><%= flash[:success] %></strong></div>
+  <% end %>
+ 
+</div>

@@ -1,0 +1,34 @@
+<%= render 'spree/admin/users/tabs', current: 'Payments' %>
+
+<% content_for :page_actions do %>
+<!--   <li id="new_price_link">
+    <%= button_link_to t(".new_payment"), new_object_url, { :remote => true, :icon => 'plus', :id => 'admin_new_payment' } %>
+  </li> -->
+<% end if can?(:create, Spree::Payment) %>
+
+<% if @payments.any? %>
+
+  <%= render 'table', payments: @payments %>
+<% else %>
+  <div class="alpha twelve columns no-objects-found">
+    <div>
+      <%= render 'spree/admin/shared/no_objects_found',
+                   resource: Spree::VendorPayment,
+                   new_resource_url: new_object_url %>
+    </div>
+<% end %>
+    <%= button_link_to t(".new_payment"), new_object_url, { :remote => true, :icon => 'plus', :id => 'admin_new_payment' } %> <br>
+    <div id="new_payment_wrapper" class = "new_payment_wrapper"  data-hook></div>
+  </div>
+<script>
+  $("#admin_new_payment").click(function() {
+    $('html, body').animate({
+        scrollTop: $(".new_payment_wrapper").offset().top
+    }, 1000);
+  });
+  $("#edit_payment").click(function() {
+    $('html, body').animate({
+        scrollTop: $(".new_payment_wrapper").offset().top
+    }, 1000);
+  });
+</script>

@@ -1,0 +1,90 @@
+<div data-hook="admin_inside_taxon_form" class="row">
+  <div class="alpha five columns">
+    <div data-hook="admin_new_item_form_name">
+      <%= f.field_container :name do %><br />
+        <%= f.label :name %><br />
+        <%= f.text_field :name,:autofocus=>true, :class => 'fullwidth', :rows => 6 %>
+      <% end %>
+    </div>
+
+    <div data-hook="admin_new_item_form_taxons" id="sub_categories_list">
+      <%= f.field_container :taxons do %>
+        <%= f.label :parent_taxon,'PARENT CATEGORY', class: 'required' %>
+        <%= f.collection_select(:taxon_ids, sub_category_list, :id, :name, { :include_blank => Spree.t('match_choices.none'), :selected => @taxon_parent_id.to_i }, { :class => 'select2 fullwidth', :required => true}) %>
+        <%= f.error_message_on :taxon_ids %>
+      <% end %>
+    </div>
+    <% if action_name == "new_item" %>
+      <div  class="omega four columns" style= "position: absolute;right: 5px;left: 320px;margin-top: -40px;">
+        <input type="button" id="newSubCat" class="select2 fullwidth" value="<%= Spree.t(:new_sub_category)%>" target="_blank">
+        <%# button_link_to Spree.t(:new_sub_category), spree.new_sub_category_admin_taxons_path + "?parent_id=" + @top_taxon_id.to_s, :icon => 'plus', :id => 'admin_new_taxonomy_link', :class => 'select2 fullwidth', :target => '_blank' %>
+      </div>
+    <% end %>
+
+  <% if action_name == "new_item" || @taxon.is_item == true %>
+    <%= f.fields_for :taxon_prices do |taxon_price| %>
+      <div data-hook="admin_new_item_form_new_rate">
+        <%= f.field_container :net_rate do %>
+          <%= f.label :net_rate %><br />
+          <%= taxon_price.text_field :amount,value: @net_rate, name: 'net_rate', type: 'number', min: '0', :class => 'fullwidth', :rows => 6 %>
+        <% end %>
+      </div>
+
+      <div data-hook="new_product_available_on" class="omega four columns" style= "position: absolute;right: 5px;left: 320px;margin-top: -72px;">
+      <%= f.field_container :net_rate_effective_from do %>
+        <%= f.label :effective_from %>
+        <%= f.error_message_on :effective_from %>
+        <%= taxon_price.text_field :effective_from, name: 'net_rate_effective_from', :class => 'datepicker fullwidth', value: @net_rate_effective_from.present? ? datepicker_field_value(@net_rate_effective_from) : Time.now.strftime('%d-%m-%Y') %>
+      <% end %>
+      </div>
+
+      <div data-hook="admin_new_item_form_due_rate">
+        <%= f.field_container :due_rate do %>
+          <%= f.label :due_rate %><br />
+          <%= taxon_price.text_field :amount,value: @due_rate, name: 'due_rate', type: 'number', min: '0', :class => 'fullwidth', :rows => 6 %>
+        <% end %>
+      </div>
+
+      <div data-hook="new_product_available_on" class="omega four columns" style= "position: absolute;right: 5px;left: 320px;margin-top: -72px;">
+        <%= f.field_container :due_rate_effective_from do %>
+          <%= f.label :effective_from %>
+          <%= f.error_message_on :effective_from %>
+          <%= taxon_price.text_field :effective_from, name: 'due_rate_effective_from',:class => 'datepicker fullwidth', value: @due_rate_effective_from.present? ? datepicker_field_value(@due_rate_effective_from) : Time.now.strftime('%d-%m-%Y') %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+  </div>
+</div>
+
+<script>
+    $("#newSubCat").click(function() {
+      newSubCategoryWindow = window.open("<%= spree.new_sub_category_admin_taxons_path + "?parent_id=" + @top_taxon_id.to_s %>");
+    });
+    window.refreshItem = function(){
+      $.ajax({
+        url: '/api/taxons/sub_category_list',
+        type: 'GET',
+        headers: { "X-Spree-Token": Spree.api_key },
+        dataType: 'script',
+        success: function(data){
+          var $dropdown = $("#taxon_taxon_ids");
+          var response = JSON.parse(data);    
+          $dropdown.html('');
+          if (response.length == 0) {
+            $dropdown.append($("<option />").val('').text("None"));
+          } else {
+            $.each(response, function(index) {
+              if (index == 0) {
+                $dropdown.append($("<option />").val('').text("None"));
+              }
+              if(this.parent_id != null && this.is_item == false) {
+                $dropdown.append($("<option />").val(this.id).text(this.name));                  
+              }
+            });
+          }
+        }
+      })
+      newSubCategoryWindow.close();
+    }
+</script>

@@ -1,0 +1,61 @@
+<%= render 'spree/admin/shared/shipping_tabs' %>
+
+<% content_for :page_title do %>
+  <%= Spree::Rack.model_name.human(count: :other) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <% if can?(:create, Spree::Rack) %>
+    <li>
+      <%= button_link_to Spree.t(:new_rack), new_object_url,  :icon => 'plus', :id => 'admin_new_rack_link' %>
+    </li>
+  <% end %>
+<% end %>
+
+<% if @racks.any? %>
+  <table class="index" id='listing_racks'>
+    <colgroup>
+      <col style="width: 20%">
+      <col style="width: 15%">
+      <col style="width: 10%">
+      <col style="width: 15%">
+    </colgroup>
+    <thead>
+      <tr data-hook="admin_racks_index_headers">
+        <th><%= Spree::Rack.human_attribute_name(:name) %></th>
+        <th><%= Spree::StockLocation.model_name.human %></th>
+        <th><%= Spree.t(:count_on_hand) %></th>
+        <th data-hook="admin_racks_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @racks.each do |rack|%>
+        <tr id="<%= spree_dom_id rack %>" data-hook="admin_racks_index_rows" class="<%= cycle('odd', 'even')%>">
+          <td class="align-center"><%= rack.name %></td>
+          <td class="align-center"><%= rack.stock_location.name %></td>
+          <td class="align-center"><%= link_to rack.total_rack_stock, "reports/rack_stock?q[rack_id]=#{rack.id}" %></td>
+          <td data-hook="admin_racks_index_row_actions" class="actions">
+            <% if can?(:update, rack) %>
+              <%= link_to_edit rack, :no_text => true %>
+            <% end %>
+
+            <% if can?(:destroy, rack) %>
+              <%= link_to_delete rack, :no_text => true %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alpha twelve columns no-objects-found">
+    <%= render 'spree/admin/shared/no_objects_found',
+                 resource: Spree::Rack,
+                 new_resource_url: new_object_url %>
+  </div>
+<% end %>
+
+
+
+
+

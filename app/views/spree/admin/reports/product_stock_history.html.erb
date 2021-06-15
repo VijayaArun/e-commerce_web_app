@@ -1,0 +1,50 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:product_stock_history) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li><%= link_to_with_icon 'arrow-left', Spree.t(:back_to_reports_list), spree.admin_reports_url, :class => 'button' %></li>
+<% end %>
+
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:filter_options) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <%= render :partial => 'spree/admin/shared/product_stock_report_criteria', :locals => {} %>
+<% end %>
+
+
+<table class="admin-report" data-hook="visit">
+  <thead>
+    <tr>
+      <th><%= Spree.t(:product_name) %></th>
+      <th><%= Spree.t(:stock_location) %></th>
+      <th><%= Spree.t(:previous_stock) %></th>
+      <th><%= Spree.t(:change_in_stock) %></th>
+      <th><%= Spree.t(:remark) %></th>
+      <th><%= Spree.t(:date) %></th>
+    </tr>
+  </thead>  
+  <tbody>
+  
+  <% if @data.present? %>
+    <% @data.each do |rows| %>
+      <tr class="align-center">
+      <% if rows[:product_name].present? %>
+        <td><%= link_to rows[:product_name], edit_admin_product_path(rows[:product_name]) %></td>
+      <% else %>
+        <td><%= rows[:product_name] %></td>
+      <% end %>
+      <td><%= rows[:stock_location] %></td>
+        <td><%= rows[:previous_stock] %></td>
+        <td><%= rows[:current_stock] %></td>
+        <td><%= rows[:remark] %></td>
+        <td><%= rows[:date] %></td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+<%= paginate @data, theme: "solidus_admin" %>

@@ -1,0 +1,110 @@
+<%= f.fields_for :images do |i| %>
+  <div data-hook="product_image" class="field">
+    <% if @image.present? %>
+        <%= image_tag @image.attachment(:mini) %>
+    <% end %>
+        &nbsp;  &nbsp;
+      <%= i.file_field :attachment %>
+  </div>
+<% end %>
+
+<%= f.field_container :name do %>
+  <%= f.label :name, class: 'required' %><br />
+  <%= f.text_field :name, :class => 'fullwidth title',:value => @new_product_name, :required => true %>
+  <%= f.error_message_on :name %>
+<% end %>
+
+<div data-hook="new_product_set_size" class="alpha four columns">
+  <%= f.field_container :set_size do %>
+  <%= f.label :set_size, class: 'required' %><br />
+  <% if @set_size == nil %>
+    <% @set_size = 4 %>
+  <% end %>
+  <%= f.text_field :set_size,value: @set_size, :class => 'fullwidth title', :required => true %>
+  <%= f.error_message_on :set_size %>
+  <% end %>
+</div>
+
+<div data-hook="new_product_available_on" class="omega four columns">
+  <%= f.field_container :available_on do %>
+    <%= f.label :available_on %>
+    <%= f.error_message_on :available_on %>
+    <%= f.text_field :available_on,value: @available_on, :class => 'datepicker fullwidth', value: Time.now.strftime('%d-%m-%Y') %>
+  <% end %>
+</div>
+
+<table class="index" id="racks_listings">
+  <colgroup>
+     <col style="width: 15%;">
+     <col style="width: 10%;">
+     <col style="width: 48%;">
+     <col style="width: 10%;">
+     <col style="width: 17%;">
+  </colgroup>
+  <% if action_name == 'new_product' or action_name == 'edit_product' %>
+    <thead>
+      <tr data-hook="admin_products_index_headers">
+        <th><%= Spree.t(:stock_location) %></th>
+        <th><%= Spree.t(:quantity) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @collection != nil %>
+        <% @collection.each do |location| %>
+          <% location.racks.each do |rack| %>>
+            <tr name="<%= rack.name %>" class="rack-row">
+              <td class="align-center"><%= rack.name %></td>
+              <td class="align-center">
+                <%= f.number_field :total_stock, id: rack.name + "_" + location.name + "_total_stock", name: rack.name + "_" + location.name + "_total_stock", value: !@racks_stock.nil? ? @racks_stock[rack.name + "_" + location.name + "_total_stock"]: 0 %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+        <tr>
+          <td>
+            <div>
+              <%= f.field_container :rack_listings do %>
+                <%= f.label :racks,'Select Rack' %>
+                <%= f.collection_select(:id, racks_list, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2 fullwidth' }) %>
+              <% end %>
+            </div>
+          </td>
+          <% if action_name == 'new_product' %>
+            <td>
+              <div>
+                <%= f.label :racks,'Add Rack' %>
+                <input type="button" id="newRack" class="select2 fullwidth" value="<%= Spree.t(:new_rack) %>" target="_blank">
+                <%# button_link_to , new_admin_rack_path, {:class => 'select2 fullwidth', :target => '_blank'} %>
+              </div>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  <% end %>
+</table>
+
+<script>
+    $('#product_id').select2().on('change', function (e) {
+        if (e.added) {
+            var name = e.added.text;
+            var row = $(".rack-row[name='"+ name +"']").show();
+            if (row.length) {
+                row.find("input")[0].focus();
+                row.find("input")[0].select();
+            }
+            $(e.target).find("option[value='" + $('#product_id').val() + "']").remove();
+            window.setTimeout(function () { $('#product_id').val('').trigger("change"); }, 1);
+        }
+    });
+    $('#racks_listings tbody tr.rack-row').each(function (index) {
+        var value = $(this).find('input').val();
+        if (!value || (value && value == 0)) {
+            $(this).hide();
+        } else {
+            var self = this;
+            $('#product_id option').filter(function () { return $(this).html() == $(self).find("td").first().html(); }).remove();
+        }
+    });
+    window.setTimeout(function () { $('#product_id').val('').trigger("change"); }, 1);
+</script>

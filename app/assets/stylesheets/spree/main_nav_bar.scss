@@ -1,0 +1,21 @@
+#currency-select {
+	
+	#currency-fields {
+		display: inline-block;
+		.rate-wrapper {
+			float: left;
+			padding: 0 5px;
+			text-transform: none;
+			cursor: pointer;
+			label {
+				font-weight: normal;
+				font-size: 14px;
+				color: #00ADEE;
+				input {
+					top: 2px;
+					position: relative;
+				}
+			}
+		}
+	}
+}

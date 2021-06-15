@@ -1,0 +1,7 @@
+<%= form_for [:admin, @user, @payment], method: :post, url: admin_user_vendor_payments_path(@user.id), :html => { :remote => true} do |f| %>
+  <fieldset>
+    <legend align="center"><%= Spree.t("admin.vendor_payments.new") %></legend>
+    <%= render :partial => 'form', :locals => { :f => f } %>
+    <%= render :partial => 'spree/admin/shared/new_resource_links', :locals => { :collection_url => admin_user_vendor_payments_path(@user) } %>
+  </fieldset>
+<% end %>

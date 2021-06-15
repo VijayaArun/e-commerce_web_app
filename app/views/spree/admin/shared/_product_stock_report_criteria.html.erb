@@ -1,0 +1,27 @@
+<%= search_form_for @search, :url => spree.product_stock_history_admin_reports_path  do |s| %>
+  <div class="field">
+
+    
+<%=  s.select :variant_id_cont, options_for_select(list_products,params[:q][:variant_id_cont]),{:prompt => 'Select a Product'}, { :include_blank => true,:class => 'select2' }%>
+
+  &nbsp 
+
+<%=  s.select :stock_location_id_cont, options_for_select(list_stock_locations,params[:q][:stock_location_id_cont]),{prompt: "Select Location"}, { :include_blank => true, :class => 'select2'}%>
+      </div>
+
+  <div class="date-range-filter field align-center">
+    <%= label_tag :q_created_at_gt, Spree.t(:start), :class => 'inline' %>
+    <%= s.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => datepicker_field_value(params[:q][:created_at_gt]) %>
+        
+    <span class="range-divider">
+      <i class="fa fa-arrow-right"></i>
+    </span>
+
+    <%= s.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => datepicker_field_value(params[:q][:created_at_lt]) %>
+    <%= label_tag :q_created_at_lt, Spree.t(:end), :class => 'inline' %>
+  </div>
+
+  <div class="actions filter-actions">
+    <%= button Spree.t(:search), 'search'  %>
+  </div>
+<% end %>

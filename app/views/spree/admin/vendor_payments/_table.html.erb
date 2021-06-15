@@ -1,0 +1,26 @@
+
+<table class="index prices">
+  <thead data-hook="prices_header">
+    <tr>
+      <th><%= Spree::Price.human_attribute_name(:Modified) %></th>
+      <th><%= Spree::Price.human_attribute_name(:remark) %></th>
+      <th><%= Spree::Price.human_attribute_name(:amount) %></th>
+      <th class="actions"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+  <% payments.each do |payment| %>
+    <tr id="<%= spree_dom_id payment %>" data-hook="prices_row" class="<%= cycle('odd', 'even')%>">
+      <td><%= payment.updated_at.to_time.strftime('%B %e at %l:%M %p') %>
+      <td><%= payment.remark %></td>
+      <td class="align-right"><%= payment.payment%></td>
+      <td class="actions" data-hook="admin_products_index_row_actions">
+          <%= link_to_edit payment, :no_text => true, :id => "edit_payment",:class => 'edit',:remote => true  %> 
+          &nbsp;
+          <%= link_to_delete payment, :no_text => true %>
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>

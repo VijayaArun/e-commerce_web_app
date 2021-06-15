@@ -1,0 +1,33 @@
+<% if @product %>
+  <%= render :partial => 'spree/admin/shared/product_tabs', :locals => { :current => 'Stock Management' } %>
+  <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product } %>
+  <% admin_breadcrumb(Spree.t(:manage_stock)) %>
+
+<% else %>
+
+  <% admin_breadcrumb(Spree.t(:stock)) %>
+
+<% end %>
+
+<% if params[:item_id].nil? %>
+  <% content_for :table_filter_title do %>
+    <%= Spree.t(:search) %>
+  <% end %>
+
+  <% content_for :table_filter do %>
+    <% form_path = @product ? admin_product_stock_path(product: @product) : admin_stock_items_path %>
+    <%= render :partial => 'spree/admin/shared/variant_search', :locals => { :form_path => form_path, :stock_locations => @stock_locations } %>
+  <% end %>
+<% end %>
+
+<% if @variants.any? %>
+  <% if ENV['ALLOW_MULTIPLE_STOCK_UPDATE'] == 'true' and (@product or !params[:item_id].nil?) %>
+    <%= render :partial => 'stock_management_revised', :locals => { :variants => @variants } %>
+  <% else %>
+    <%= render :partial => 'stock_management', :locals => { :variants => @variants } %>
+  <% end -%>
+<% else %>
+  <div class="fullwidth no-objects-found">
+    <%= Spree.t(:no_variants_found_try_again) %>
+  </div>
+<% end %>

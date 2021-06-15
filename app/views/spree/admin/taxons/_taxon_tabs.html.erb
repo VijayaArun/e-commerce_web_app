@@ -1,0 +1,18 @@
+
+<% content_for :tabs do %>
+  <nav>
+    <ul class="tabs" data-hook="admin_taxon_tabs">
+      <%= content_tag :li, :class => ('active' if current == 'Taxon Details') do %>
+        <%= link_to_with_icon 'edit', Spree.t(:taxon_details), edit_admin_taxonomy_taxon_path(@taxonomy.id, @taxon.id) %>
+      <% end if can?(:admin, Spree::Taxon) %>
+      <% 
+=begin %>
+      <%= content_tag :li, :class => ('active' if current == 'Prices') do %>
+        <%= link_to_with_icon 'money', t(:prices),admin_taxonomy_taxon_taxon_prices_path(@taxonomy.id, @taxon.id, @price) %>
+      <% end if can?(:admin, Spree::TaxonPrice) %>
+      <% 
+=end %>
+
+    </ul>
+  </nav>
+<% end %>

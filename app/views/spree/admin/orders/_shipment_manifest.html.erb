@@ -1,0 +1,61 @@
+<% shipment_manifest.each do |item_id, item| %>
+  <tr class="stock-item" data-item-id="<%= item_id %>" data-item-quantity="<%= item[:quantity] %>">
+    <td class="item-image">
+    </td>
+    <td class="item-name align-center">
+      <%= item[:name] %><br>
+    </td>
+    <td class="item-price align-center"><%= item[:price] %></td>
+    <td class="item-qty-show align-center">
+    <%if !item[:perfect_set] %>
+      <%= pluralize(item[:quantity], 'piece')%> 
+    <% else %>
+      <%= pluralize(item[:set], 'set')%> 
+    <% end %>
+    </td>
+    <td class="item-total align-center"><%= item[:total_price] %></td>
+  </tr>
+  <% item[:designs].each do |manifest| %>
+    <tr class="design-item-<%= item_id %>" data-item-quantity="<%= manifest.quantity %>" style="display: none">
+      <td class="item-image">
+        <%= image_tag manifest.variant.display_image.attachment(:mini) %>
+      </td>
+      <td class="item-name">
+        <%= manifest.variant.product.name %><br><%= "(" + variant_options(manifest.variant) + ")" unless manifest.variant.option_values.empty? %>
+        <% if manifest.variant.sku.present? %>
+          <strong><%= Spree::Variant.human_attribute_name(:sku) %>:</strong> <%= manifest.variant.sku %>
+        <% end %>
+      </td>
+      <td class="item-price align-center"><%= manifest.line_item.single_money.to_html %></td>
+      <td class="item-qty-show align-center">
+          <% manifest.states.each do |state,count| %>
+            <%= count %> x <%= Spree.t(state, scope: 'inventory_states') %>
+          <% end %>
+      </td>
+      <td class="item-total align-center"><%= line_item_shipment_price(manifest.line_item, manifest.quantity) %></td>
+
+      <td class="cart-item-delete actions" data-hook="cart_item_delete">
+        <% if can? :update, manifest %>
+          <%= link_to '', '#', :class => 'split-item icon_link fa fa-arrows-h no-text with-tip', :data => {:action => 'split', 'variant-id' => manifest.variant.id}, :title => Spree.t('actions.split') %>
+          <%= link_to '', '#', :class => 'delete-item fa fa-trash no-text with-tip', :data => { 'variant-id' => manifest.variant.id}, :title => Spree.t('actions.delete') %>
+        <% end %>
+      </td>
+    </tr>
+  <%end%>
+<% end %>
+<script>
+  $(".stock-item").off("click").on("click", function() {
+    if ($(this).hasClass("visible")) {
+      $(this).siblings(".design-item-" + $(this).data("item-id")).fadeOut();
+    } else {
+      $(this).siblings(".design-item-" + $(this).data("item-id")).fadeIn();
+    }
+    $(this).toggleClass("visible");
+  });
+</script>
+<style>
+.stock-item:hover {
+    cursor: pointer;
+    cursor: hand;
+}
+</style>

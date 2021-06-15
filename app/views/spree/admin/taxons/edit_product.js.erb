@@ -1,0 +1,9 @@
+$("#admin_taxonomies_path_new_product").hide();
+$("#new_product_wrapper").html('<%= escape_javascript(render :template => "spree/admin/taxons/edit_product", :formats => [:html], :handlers => [:erb]) %>');
+handle_date_picker_fields();
+<% if flash[:success] == Spree.t(:product_updated_successfully) %>
+    location.reload();
+<% elsif flash[:error] %>
+    show_flash('error', '<%= j flash[:error] %>');
+<% end %>
+$("#product_name").focus();

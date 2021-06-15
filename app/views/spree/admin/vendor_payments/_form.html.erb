@@ -1,0 +1,19 @@
+<div data-hook="admin_payment_fields">
+  <div data-hook="new_vendor_remark" class="alpha four columns">
+    <%= f.field_container :remark do %>
+      <%= f.label :remark, class: 'required' %><br />
+      <%= f.text_field :remark,:value => @payment.remark, :required => true %>
+      <%= f.error_message_on :remark %>
+    <% end %>
+  </div>
+
+    <div data-hook="new_vendor_payment" class="alpha four columns">
+      <%= f.field_container :payment do %>
+      <%= f.label :payment, class: 'required' %><br />
+      <%= f.text_field :payment,value: @payment.payment, :class => 'fullwidth title', :required => true %>
+      <%= f.error_message_on :payment %>
+      <% end %>
+    </div>
+</div>
+
+<div class="clear"></div>

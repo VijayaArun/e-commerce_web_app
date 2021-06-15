@@ -1,0 +1,19 @@
+<div data-hook="admin_inside_taxon_form" class="row">
+  <div class="alpha five columns">
+    
+    <div data-hook="admin_new_item_form_name">
+      <%= f.field_container :name do %><br />
+        <%= f.label :name %><br />
+        <%= f.text_field :name,:autofocus=>true, :class => 'fullwidth', :rows => 6 %>
+      <% end %>
+    </div>
+
+    <div data-hook="admin_new_item_form_taxons">
+      <%= f.field_container :taxons do %>
+        <%= f.label :parent_taxon,'PARENT CATEGORY', class: 'required' %>
+        <%= f.collection_select(:taxon_ids, top_sub_category_list, :id, :name, { :include_blank => Spree.t('match_choices.none'), :selected => @taxon_parent_id.to_i }, { :class => 'select2 fullwidth', :required => true, :disabled => @disable_taxon}) %>
+        <%= f.error_message_on :taxon_ids %>
+      <% end %>
+    </div>
+  </div>
+</div>

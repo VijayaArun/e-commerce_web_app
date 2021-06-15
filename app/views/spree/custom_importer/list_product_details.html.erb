@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>EditableGrid - Minimal demo - Creating grid in Javascript</title>
+    
+    
+    <style>
+      body { font-family:'lucida grande', tahoma, verdana, arial, sans-serif; font-size:11px; }
+      h1 { font-size: 15px; }
+      a { color: #548dc4; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      table.testgrid { border-collapse: collapse; border: 1px solid #CCB; width: 800px; }
+      table.testgrid td, table.testgrid th { padding: 5px; border: 1px solid #E0E0E0; }
+      table.testgrid th { background: #E5E5E5; text-align: left; }
+      input.invalid, tr.duplicate { background: red; color: #FDFDFD; }
+      input.invalid, tr.mandatory { border: orange; border-style: solid; }
+    </style>
+    <script>
+    function initializeData (data) {
+      window.products_data = data;
+    }
+  </script>
+    <%=javascript_tag "initializeData(#{(@products.to_json)})" -%> 
+    <script>
+      function addRequiredListerners() {
+        var metadata = [];
+        metadata.push({ name: "flag", label: "Select", datatype: "boolean", editable: true});
+        metadata.push({ name: "name", label: "Name", datatype: "string", editable: true});
+        metadata.push({ name: "due_rate", label:"Due Rate", datatype: "double", editable: true});
+        metadata.push({ name: "net_rate", label: "Net Rate", datatype: "double", editable: true});
+        metadata.push({ name: "taxons", label: "Taxons", datatype: "string", editable: false});
+        metadata.push({ name: "path", label: "Image", datatype: "image", editable: false});
+        metadata.push({ name: "available_on", label: "Available On", datatype: "date", editable: true});
+        metadata.push({ name: "set_size", label: "Set size", datatype: "integer", editable: true});
+        
+        editableGrid = new EditableGrid("DemoGridJsData");
+        editableGrid.load({"metadata": metadata, "data": products_data});
+        editableGrid.renderGrid("tablecontent", "testgrid");
+
+        $('#product_details').submit(function() {
+          $("#product_info").val(JSON.stringify(editableGrid.data));
+          return true; // return false to cancel form action
+        });
+        return true;
+      }
+    </script>
+    
+  </head>
+  
+  <body onload="addRequiredListerners()">
+     
+    <div id="tablecontent"></div>
+    <%= form_tag('list_product_details', :method => 'post', id: "product_details", :multipart => true, :remote => true) do %>
+    <input type="hidden" name="product_info" id="product_info" >
+    <center>    
+      <%= submit_tag "Import" , name: 'import' %>
+    </center>
+    <br>
+    <% end %>
+  </body>
+
+</html>

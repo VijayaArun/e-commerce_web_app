@@ -1,0 +1,5 @@
+<% if flash[:success].present? %>
+  location.reload();
+<% elsif flash[:error].present? %>
+  show_flash('error', '<%= j flash[:error] %>');
+<% end %>

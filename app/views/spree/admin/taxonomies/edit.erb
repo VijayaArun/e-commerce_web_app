@@ -1,0 +1,25 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:category_edit) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:back_to_taxonomies_list), spree.admin_taxonomies_path, :icon => 'arrow-left' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:new_sub_category), spree.new_sub_category_admin_taxons_path, :icon => 'plus', :id => 'admin_new_taxonomy_link' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:add_item), spree.new_item_admin_taxons_path, { icon: 'plus' } %>
+  </li>
+<% end %>
+
+<%= form_for [:admin, @taxonomy] do |f| %>
+  <fieldset class="no-border-top">
+    <%= render :partial => 'form', :locals => { :f => f } %>
+    <div class="filter-actions actions">
+      <%= button Spree.t('actions.update'), 'refresh' ,nil,id: "update"%>
+      <%= button_link_to Spree.t('actions.cancel'), admin_taxonomies_path, :icon => 'remove' %>
+    </div>
+  </fieldset>
+<% end %>

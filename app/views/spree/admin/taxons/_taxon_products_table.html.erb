@@ -1,0 +1,55 @@
+<% if @collection != nil %>
+  <% if @collection.any? %>
+    <table class="index" id="listing_products">
+      <colgroup>
+         <col style="width: 15%;">
+         <col style="width: 10%;">
+         <col style="width: 48%;">
+         <col style="width: 10%;">
+         <col style="width: 17%;">
+      </colgroup>
+      <% if  @collection.any? %>
+      <thead>
+        <tr data-hook="admin_products_index_headers">
+          <th>
+            <input id="products_check" name="products_check" type="checkbox" value="0">
+          </th>
+          <th colspan="2"><%= Spree::Product.human_attribute_name(:name) %></th>
+          <th><%= Spree.t(:set_size) %></th>
+          <th><%= Spree.t(:total_stock) %></th>
+          <th data-hook="admin_products_index_header_actions" class="actions"></th>
+        </tr>
+      </thead>
+      <% end %>
+      <tbody>
+        <% @collection.each do |product| %>
+              <td class="align-center">
+                <%= check_box_tag "product_#{product[:variant_id]}", "#{product[:variant_id]}", false %>
+              </td>
+              <td class="align-center"><%= link_to image_tag(product[:image]), product[:large_image], :style => "border-bottom: none;", target: :_blank %></td>
+              <td class="align-center"><%= product[:name] %></td>
+              <td class="align-center"><%= product[:set_size] %></td>
+              <td title = "<%= product[:racks] %>" class="align-center"><%= link_to product[:total_stock], admin_product_stock_path(product[:sku]) + '/?item_id=' + @taxon.id.to_s + '&taxonomy_id=' + @taxonomy.id.to_s %></td>
+              <td class="actions" data-hook="admin_products_index_row_actions">
+                <%= link_to_edit product, :no_text => true, :id => "edit_product",:class => 'edit',:remote => true %> 
+              &nbsp;
+              <%= link_to_delete product, :no_text => true, :id => "delete_product"%>
+            </td> 
+            </tr>
+        <% end %>
+        <tr>
+          <td class="align-center" colspan="4"><%= Spree.t(:grand_total_stock) %></td>
+          <td class="align-center"><%= @grand_total_stock  %></td>
+        </tr>
+      </tbody>
+    </table>
+  <% end %>
+<% end %>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+  $("a#edit_product").click(function(){
+    $("#listing_products").find('tr td a#delete_product').hide();
+  });
+});
+</script>

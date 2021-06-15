@@ -1,0 +1,43 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:order_report) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li><%= link_to_with_icon 'arrow-left', Spree.t(:back_to_reports_list), spree.admin_reports_url, :class => 'button' %></li>
+<% end %>
+
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:filter_options) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <%= render :partial => 'spree/admin/shared/order_report_criteria', :locals => {} %>
+<% end %>
+
+<table class="admin-report" data-hook="visit">
+  <thead>
+    <tr>
+      <th><%= Spree.t(:order_no) %></th>
+      <th><%= Spree.t(:payment_pending) %></th>
+      <th><%= Spree.t(:shipment_pending) %></th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <% if @data.present? %>
+    <% @data.each do |rows| %>
+      <tr class="align-center">
+        <% if rows[:order_number].present? %>
+          <td><%= link_to rows[:order_number], edit_admin_order_path(rows[:order_number]) %></td>
+        <% else %>
+          <td><%= rows[:order_number] %></td>
+        <% end %>
+        <td><%= rows[:payment_pending] %></td>
+        <td><%= rows[:shipment_pending] %></td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+<%= paginate @data, theme: "solidus_admin" %>

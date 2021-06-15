@@ -1,0 +1,5 @@
+$("#admin_new_payment").hide();
+$("#new_payment_wrapper").html('<%= escape_javascript(render :template => "spree/admin/vendor_payments/new", :formats => [:html], :handlers => [:erb]) %>');  
+$("#vendor_payment_remark").focus();
+
+

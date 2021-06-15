@@ -1,0 +1,14 @@
+<% if request.get? %>
+    $("#admin_taxonomies_path_new_product").hide();
+    $("#new_product_wrapper").html('<%= escape_javascript(render :template => "spree/admin/taxons/new_product", :formats => [:html], :handlers => [:erb]) %>');
+    handle_date_picker_fields();
+<% else %>
+    <% if flash[:success].present? %>
+        location.reload();
+    <% elsif flash[:error].present? %>
+        show_flash('error', '<%= j flash[:error] %>');
+    <% end %>
+<% end %>
+$("#product_name").focus();
+
+

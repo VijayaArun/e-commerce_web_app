@@ -1,0 +1,82 @@
+<%= form_for [:admin, @product], method: :post, url: new_product_admin_taxon_path(@taxon.id), :html => { :multipart => true} do |f| %>
+<%= hidden_field_tag "hdnRackName", api_racks_path %>
+
+  <fieldset data-hook="new_product">
+
+    <legend align="center"><%= Spree.t(:new_product) %></legend>
+    <%= render 'product_form', :f => f %>
+    <%= render :partial => 'spree/admin/shared/new_resource_links' %>
+  </fieldset>
+<% end %>
+<script>
+     $('#new_product').submit(function(evt){
+        evt.preventDefault();
+        var id = '<%= params[:id] %>'
+        var formData = new FormData($(this)[0]);
+        $.ajax({
+           url: '/admin/taxons/'+ id +'/new_product',
+           type: 'POST',
+           data: formData,
+           async: true,
+           cache: false,
+           contentType: false,
+           enctype: 'multipart/form-data',
+           processData: false,
+           dataType: 'script'
+        });
+    });
+</script>
+<script>
+  $("#newRack").click(function() {
+      newRackWindow = window.open("<%= new_admin_rack_path %>");
+    });
+    window.refreshRack = function() {
+      var allRackRows = $('#racks_listings tbody tr.rack-row');
+      if (allRackRows.length > 0) {
+        $.ajax({
+          url: $("#hdnRackName").val(),
+          type: 'GET',
+          headers: { "X-Spree-Token": Spree.api_key },
+          dataType: 'script',
+          success: function(data) {
+            var $dropdown = $("#product_id");
+            var response = JSON.parse(data);    
+            var selected_racks = [];
+            var all_racks = [];
+            $dropdown.html('');
+            if (response.length == 0) {
+              $dropdown.append($("<option />").val('').text("None"));
+            } else {
+              $.each(response, function(index) {
+                if (index == 0) {
+                  $dropdown.append($("<option />").val('').text("None"));
+                }
+                
+                $.each(allRackRows.find('td:first-child:visible'), function(d_index) {
+                  selected_racks.push($(this).html());
+                });
+
+                $.each(allRackRows.find('td:first-child'), function(d_index) {
+                  all_racks.push($(this).html());
+                });
+
+                if(this.name != selected_racks[index]) {
+                  $dropdown.append($("<option />").val(this.id).text(this.name));
+                  if (all_racks.indexOf(this.name) == -1) {
+                    var new_rack = allRackRows.first().clone();
+                    new_rack.find('td:first').text(this.name);
+                    var nameAndID = this.name + "_" + this.stock_location.name + "_total_stock";
+                    new_rack.find('td:last input').val('0').attr('id', nameAndID).attr('name', nameAndID);
+                    new_rack.attr('name', this.name).hide().insertAfter('#racks_listings tbody tr:nth-last-child(2)');
+                  }
+                }
+              });
+            }
+          }
+        });
+        newRackWindow.close();
+      } else {
+        window.location.reload();
+      }
+    }
+</script>

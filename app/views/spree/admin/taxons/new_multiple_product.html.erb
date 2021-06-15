@@ -1,0 +1,122 @@
+<%= form_for [:admin, @product], method: :post, url: new_multiple_product_admin_taxon_path(@taxon.id), :html => { :multipart => true } do |f| %>
+
+  <fieldset data-hook="new_products">
+    <legend align="center"><%= Spree.t(:new_products) %></legend>
+    <% @max_product_numbers.times do |product_index|%>
+      <%= f.fields_for :images do |i| %>
+        <div data-hook="product_image" class="field">
+          <% if @image.present? %>
+              <%= image_tag @image.attachment(:mini) %>
+          <% end %>
+              &nbsp;  &nbsp;
+            <%= f.file_field :attachment, :index => product_index %>
+        </div>
+      <% end %>
+
+      <%= f.field_container :name do %>
+        <%= f.label :name, class: 'required' %><br />
+        <%= f.text_field :name, :class => 'fullwidth title', :index => product_index %>
+        <%= f.error_message_on :name %>
+      <% end %>
+
+      <div data-hook="new_product_set_size" class="alpha four columns">
+        <%= f.field_container :set_size do %>
+        <%= f.label :set_size, class: 'required' %><br />
+        <% if @set_size == nil %>
+          <% @set_size = 4 %>
+        <% end %>
+        <%= f.text_field :set_size,value: @set_size, :class => 'fullwidth title', :required => true, :index => product_index %>
+        <%= f.error_message_on :set_size %>
+        <% end %>
+      </div>
+
+      <div data-hook="new_product_available_on" class="omega four columns">
+        <%= f.field_container :available_on do %>
+          <%= f.label :available_on %>
+          <%= f.error_message_on :available_on %>
+          <%= f.text_field :available_on,value: @available_on, :class => 'datepicker fullwidth', value: Time.now.strftime('%d-%m-%Y'), :index => product_index %>
+        <% end %>
+      </div>
+
+      <table class="index design-rack-stock">
+        <colgroup>
+           <col style="width: 15%;">
+           <col style="width: 10%;">
+           <col style="width: 48%;">
+           <col style="width: 10%;">
+           <col style="width: 17%;">
+        </colgroup>
+        <thead>
+          <tr data-hook="admin_products_index_headers">
+            <th><%= Spree.t(:stock_location) %></th>
+            <th><%= Spree.t(:quantity) %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @collection != nil %>
+            <% @collection.each do |location| %>
+              <% location.racks.each do |rack| %>>
+                <tr name="<%= rack.name %>" class="rack-row">
+                  <td class="align-center"><%= rack.name %></td>
+                  <td class="align-center">
+                    <%= f.number_field :total_stock, id: rack.name + "_" + location.name + "_total_stock_" + product_index.to_s, name: rack.name + "_" + location.name + "_total_stock_" + product_index.to_s, value: !@racks_stock.nil? ? @racks_stock[rack.name + "_" + location.name + "_total_stock"]: 0 %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            <tr>
+              <td colspan="2">
+                <div>
+                  <%= f.field_container :rack_listings do %>
+                    <%= f.label :racks,'Select Rack' %>
+                    <%= f.collection_select(:id, racks_list, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2 fullwidth racks-stock', :index => product_index }) %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+    <%= render :partial => 'spree/admin/shared/new_resource_links' %>
+  </fieldset>
+<% end %>
+<script>
+  $('#new_product').submit(function(evt){
+    evt.preventDefault();
+    var id = '<%= params[:id] %>'
+    var formData = new FormData($(this)[0]);
+    $.ajax({
+       url: '/admin/taxons/'+ id +'/new_multiple_product',
+       type: 'POST',
+       data: formData,
+       async: true,
+       cache: false,
+       contentType: false,
+       enctype: 'multipart/form-data',
+       processData: false,
+       dataType: 'script'
+    });
+  });
+
+  $('.racks-stock').select2().on('change', function (e) {
+    var targetEle = $(e.target);
+    if (e.added) {
+      var name = e.added.text;
+      var row = targetEle.closest("tr").siblings(".rack-row[name='"+ name +"']").show();
+      if (row.length) {
+        row.find("input")[0].focus();
+        row.find("input")[0].select();
+      }
+      targetEle.find("option[value='" + targetEle.val() + "']").remove();
+      window.setTimeout(function () { targetEle.val('').trigger("change"); }, 1);
+    }
+  });
+  $('tbody tr.rack-row').each(function (index) {
+      var value = $(this).find('input').val();
+      if (!value || (value && value == 0)) {
+          $(this).hide();
+      }
+  });
+  window.setTimeout(function () { $('.racks-stock').val('').trigger("change"); }, 1);
+</script>

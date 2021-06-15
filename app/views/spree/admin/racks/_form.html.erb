@@ -1,0 +1,27 @@
+<div data-hook="admin_rack_form_fields" class="alpha twelve columns">
+  <div data-hook="admin_rack_form_name_field" class="alpha six columns">
+    <%= f.field_container :name do %>
+      <%= f.label :name %><br />
+      <%= f.text_field :name, :class => 'fullwidth', :required => true %>
+      <%= error_message_on :rack, :name %>
+    <% end %>
+  </div>
+</div>
+
+<div class="alpha six columns">
+  <div class="alpha six columns">
+    <fieldset class="stock_locations no-border-bottom">
+      <legend align="center"><%= Spree::StockLocation.model_name.human %></legend>
+        <%= f.field_container :stock_locations do %>
+        <% if action_name == "edit" %>
+          <%= f.select :stock_location_id, @stock_locations.map { |tc| [tc.name, tc.id] }, {include_blank: true}, :disabled => true, class: "select2 fullwidth" %>
+        <% else %>
+          <%= f.select :stock_location_id, @stock_locations.map { |tc| [tc.name, tc.id] }, {include_blank: true}, class: "select2 fullwidth", :required => true %>
+        <% end %>
+          <%= error_message_on :rack, :stock_location_id %>
+        <% end %>
+    </fieldset>
+  </div>
+</div>
+
+

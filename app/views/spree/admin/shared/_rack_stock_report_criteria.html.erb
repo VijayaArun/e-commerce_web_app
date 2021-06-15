@@ -1,0 +1,11 @@
+<%= search_form_for @search, :url => spree.rack_stock_admin_reports_path  do |s| %>
+  <div class="field">
+    <%=  s.select :variant_id, options_for_select(list_products,params[:q][:variant_id]),{:prompt => 'Select a Product'}, { :include_blank => true,:class => 'select2' }%>
+
+    <%=  s.select :rack_id, options_for_select(list_racks,params[:q][:rack_id]),{:prompt => 'Select a Rack'}, { :include_blank => true,:class => 'select2' }%>
+  </div>
+
+  <div class="actions filter-actions">
+    <%= button Spree.t(:search), 'search'  %>
+  </div>
+<% end %>

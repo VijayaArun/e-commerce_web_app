@@ -1,0 +1,9 @@
+<%= form_for [:admin, @product], method: :post, url: update_product_admin_taxonomy_taxon_product_path(@taxonomy_id,@taxon_id,@product_id), :html => { :multipart => true } do |f| %>
+
+  <fieldset data-hook="new_product">
+
+    <legend align="center"><%= Spree.t(:edit_product) %></legend>
+    <%= render 'product_form', :f => f %>
+    <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+  </fieldset>
+<% end %>

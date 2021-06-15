@@ -1,0 +1,117 @@
+<% content_for :page_title do %>
+<% if @taxon.is_item == true %>
+  <%= Spree.t(:edit_item) %>
+<% else %>
+  <%= Spree.t(:sub_category_edit) %>
+<% end %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:back), spree.admin_taxonomy_taxon_sub_category_tree_path(@taxonomy.id, @taxon.parent_id), :icon => 'arrow-left' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:back_to_taxonomies_list), spree.admin_taxonomies_path, :icon => 'arrow-left' %>
+  </li>
+   <li>
+    <%= button_link_to Spree.t(:add_another_item), spree.new_item_admin_taxons_path + "?parent_id=" + @taxon.parent_id.to_s, { icon: 'plus' } %>
+  </li>
+<% end %>
+<%= render :partial => 'taxon_tabs', :locals => { :current => 'Taxon Details' } %>
+<div id="edit-taxon" data-hook>
+<%# Because otherwise the form would attempt to use to_param of @taxon %>
+<% form_url = admin_taxonomy_taxon_path(@taxonomy.id, @taxon.id) %>
+<%= form_for [:admin, @taxonomy, @taxon], :method => :put, :url => form_url, :html => { :multipart => true } do |f| %>
+  <%= render 'new_item_form', :f => f %>
+  
+  <div class="form-buttons filter-actions" data-hook="buttons">
+    <%= button Spree.t('actions.update'), 'refresh' %>
+    <%= button_link_to Spree.t('actions.cancel'), admin_taxonomy_category_tree_path(@taxonomy.id), :icon => "remove" %>
+  </div>
+<% end %><br>
+<% if @taxon.is_item == true %>
+  <fieldset data-hook="taxon_products">
+    <legend align="center"><%= Spree.t(:taxon_products) %></legend>
+    <%= render 'taxon_products_table'%><br>
+
+  <%= button_link_to Spree.t(:delete_selected_products), "javascript:;", {:remote => true, :icon => 'minus', :id => 'admin_taxonomies_path_delete_multiple_product'} %>
+  <%= button_link_to Spree.t(:add_product), spree.new_product_admin_taxon_path(@taxon.id),{:remote => true,:icon => 'plus', :id => 'admin_taxonomies_path_new_product'} %>
+  <%= button_link_to Spree.t(:add_multiple_products), spree.new_multiple_product_admin_taxon_path(@taxon.id),{:remote => true,:icon => 'plus', :id => 'admin_taxonomies_path_new_multiple_product'} %>
+  <%= button_link_to Spree.t(:update_multiple_stocks), spree.admin_stock_items_path + '/?item_id=' + @taxon.id.to_s + '&taxonomy_id=' + @taxonomy.id.to_s, {:icon => 'none'} %>
+  </fieldset>
+<% end %>
+</div>
+<div id="new_product_wrapper" class = "new_product_wrapper"  data-hook></div>
+<% content_for :head do %>
+  <%= javascript_tag do -%>
+    $(document).ready(function() {
+      var field  = $('#permalink_part'),
+          target = $('#permalink_part_display'),
+          permalink_part_default = target.text().trim();
+
+      target.text(permalink_part_default + field.val());
+      field.on('keyup blur', function () {
+        target.text(permalink_part_default + $(this).val());
+      });
+    });
+  <% end -%>
+<% end %>
+<script>
+  $("#admin_taxonomies_path_new_product").click(function() {
+    $('html, body').animate({
+        scrollTop: $(".new_product_wrapper").offset().top
+    }, 1000);
+  });
+
+  $("#admin_taxonomies_path_new_multiple_product").click(function() {
+    $('html, body').animate({
+        scrollTop: $(".new_product_wrapper").offset().top
+    }, 1000);
+  });
+
+  $("#edit_product").click(function() {
+    $('html, body').animate({
+        scrollTop: $(".new_product_wrapper").offset().top
+    }, 1000);
+  });
+
+  $("#products_check").on("click", function () {
+      if ($("#products_check").is(':checked')) {
+          $('#listing_products td input[type="checkbox"]').each(function () {
+              this.checked = true;
+          });
+      } else {
+          $('#listing_products td input[type="checkbox"]').each(function () {
+              this.checked = false;
+          });
+      }
+  });
+
+  $("#admin_taxonomies_path_delete_multiple_product").click(function () {
+      var deleteVariantIds = [];
+      $('#listing_products td input[type="checkbox"]').each(function () {
+          if (this.checked) {
+              deleteVariantIds.push(this.value);
+          }
+      });
+      var id = '<%= @taxon.id.to_s %>';
+      $.ajax({
+          type: 'POST',
+          url: "/admin/taxons/" + id + "/delete_multiple_products",
+          async: true,
+          cache: false,
+          data: {
+              "variant_ids": deleteVariantIds
+          },
+          success: function (response) {
+              if (response.error) {
+                  show_flash('error', response.error);
+              }
+              if (response.success) {
+                  show_flash('success', response.success);
+                  location.reload();
+              }
+          }
+      });
+  });
+</script>

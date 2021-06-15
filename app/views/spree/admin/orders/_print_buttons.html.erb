@@ -1,0 +1,14 @@
+<% if @order and @order.completed_at? %>
+  <% buttons = Spree::PrintInvoice::Config[:print_buttons]
+     buttons = buttons.split(",").collect{|b| b.strip } %>
+  <%  buttons.each do |button| %>
+  	<% if (button == "dispatcher") %>
+  		<% ready_shipments_count =  @order.shipments.where(state: 'ready').count %>
+  		<% if ready_shipments_count > 0 %>
+				<li><%= link_to(Spree.t(button.to_s + "_print"), spree.admin_order_path(@order, :pdf , :template => button), :class => "button fa fa-print") %></li>	
+			<% end %>
+  	<% else %>
+    	<li><%= link_to(Spree.t(button.to_s + "_print"), spree.admin_order_path(@order, :pdf , :template => button), :class => "button fa fa-print") %></li>
+    <% end %>
+  <% end %>
+<% end %> 

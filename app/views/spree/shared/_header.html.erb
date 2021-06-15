@@ -1,0 +1,7 @@
+<header id="header" class="row" data-hook>
+  <figure id="logo" class="columns six" data-hook><%= logo %></figure>
+  <% if (spree_current_user) #(try_spree_current_user.try(:has_spree_role?, "salesman")) %>
+	  <%= render :partial => 'spree/shared/nav_bar' %>
+	  <%= render :partial => 'spree/shared/main_nav_bar' if store_menu? %>
+  <% end %>
+</header>

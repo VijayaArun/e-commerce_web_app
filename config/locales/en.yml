@@ -1,0 +1,126 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  hello: "Hello world"
+  login: "Login"
+  net_rate: "Net Rate"
+  vendors_list: "List Retailers"
+  add_vendor: "Add Retailer"
+  reports: "Reports"
+  proceed: "Proceed"
+  created_successfully: "Created Successfully"
+  vendor_linked_to: "Retailer Linked To"
+  address: "Address"
+  retailer: "retailer"
+  prices: "Prices"
+
+  spree:
+    stock_not_available: "Stock not available"
+    shipment_transfer_success: "shipment_transfer_success"
+    order_quantity: "Order qty"
+    rack_quantity: "Rack qty" 
+    dispatch_form: "Dispatch Form"
+    short_number: No.
+    unable_to_create_rack: "Unable to create rack"
+    new_rack: "New rack"
+    still_stock_on_rack: "There is still some stock on this rack"
+    back_to_racks_list: "Back to racks list"
+    rack: "Rack"
+    editing_rack: "Editing rack"
+    please_give_unique_rack_name: "Please give unique rack name"
+    balance_due: Outstanding
+    rack_stock_report: "Rack stock report"
+    payment_states:
+      balance_due: Outstanding
+    no_dispatch_present: No dispatch details provided
+    total_outstanding: Total Outstanding Amount
+    taxon_details: Taxon Details
+    price_updated: Price Updated Successfully
+    taxon_prices: Taxon Prices
+    order_no: Order No
+    remark: Reamrk
+    visits: Visits
+    filter_options: FILTER OPTIONS
+    salesman: Salesman
+    retailer: Retailer
+    in_time: In-Time
+    out_time: Out-Time
+    special_instructions: Special Instructions
+    visit_report: Visit Report
+    product_stock_history: Product Stock History
+    product_price_history: Product Price History
+    taxon_created_successfully: Taxon Created Successfully
+    please_give_unique_taxon_name: Please Give Unique Taxon Name
+    taxon_updated_successfully: Taxon Updated Successfully
+    product_added_successfully: Product Added Successfully
+    please_give_unique_product_name: Please Give Unique Product Name
+    taxon_products: Taxon Products
+    add_another_item: Add another Item
+    product_updated_successfully: Product Updated Successfully
+    add_item: Add Item
+    new_category: New Category
+    new_sub_category: New Sub category
+    create_sub_category: Create Sub Category
+    sub_category_created_successfully: Sub Category Created Successfully
+    please_give_unique_sub_category_name: Please Give Unique Sub Category Name
+    create_item: Create Item
+    edit_item: Edit Item
+    parent_category: Parent Category
+    sub_category_edit: Edit Sub Category
+    edit_item: Edit Item
+    categories: Categories
+    back_to_taxonomies_list: Back to Categories List
+    category_edit: Edit Category
+    address: Address
+    add_multiple_products: Add multiple products
+    delete_selected_products: Delete selected products
+    update_multiple_stocks: Update multiple products
+    products_added_successfully: Products Added Successfully
+    please_check_the_no_of_product_names_specified: Please Check The No Of Product Names Specified
+    add_products: Add Products
+    sub_category_list: Sub Category List
+    item_placeholder: Choose a item
+    toggle_filters: Toggle Filters
+    inventory_states:
+      backordered: forwardordered
+    shipment_states:
+      backorder: forwardorder
+    order_info: Order Information
+    outstanding_amount: Outstanding Amount
+    company_name: Company Name
+    back: Back
+    order_form: Order Form
+    update_all: Update All
+    email_postfix_domain: shreesarees
+    hide_canceled_orders: Hide canceled orders
+    choose_a_vendor: Choose a retailer
+    delete_selected: Delete Selected
+    deleted_selected_orders: Selected orders were deleted
+    few_deleted_orders: Only few orders were deleted
+    no_deleted_orders: No orders were deleted
+    some_orders_not_deleted: Some orders weren't deleted
+    deleted_selected_products: Selected designs were deleted
+    few_deleted_products: Only few designs were deleted
+    no_deleted_products: No designs were deleted
+    some_products_not_deleted: Some designs weren't deleted
+    set_size: Set size
+    grand_total_stock: Grand total stock

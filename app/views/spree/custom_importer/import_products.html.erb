@@ -1,0 +1,15 @@
+<html>
+<head>Product importer</head>
+<body>
+  <div align="center">
+  <%= form_tag('import_products', :method => 'get', :multipart => true) do %>
+ <h1> <b>Provide images folder path:</b></h1>
+    <%= text_field_tag "path" %><br>
+    <h1> <b>Provide price list path:</b></h1>
+    <%= text_field_tag "prices" %><br><br>
+    <%= submit_tag "Proceed" %>
+  <% end %>
+  </div>
+</body>
+</html>
+

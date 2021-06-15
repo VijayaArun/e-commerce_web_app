@@ -1,0 +1,34 @@
+ <%= javascript_include_tag 'product' %>  
+  <script>
+    function initializeProductProperties (noOfProducts) {
+      window.product = {};
+      window.product["noOfProducts"] = noOfProducts?noOfProducts:1; 
+    }
+  </script>
+  <%=javascript_tag "initializeProductProperties(#{(get_set_size(@product).to_json)})" -%> 
+
+  <h6 class="product-section-title"><%= Spree.t('properties')%></h6>
+  <table id="product-properties" class="table-display" data-hook>
+    <tbody>
+    
+    <!-- Show Set size by getting the data from the Product detail table -->
+
+      <tr class="odd">
+          
+        <td><strong>Set Size</strong></td>
+        <td><%= get_set_size(@product) %></td>
+      </tr>
+
+      <% unless @product_properties.empty? %>
+        <% @product_properties.each do |product_property| %>
+          <% css_class = cycle('even', 'odd', :name => "properties") %>
+          <tr class="<%= css_class %>">
+            
+            <td><strong><%= product_property.property.presentation %></strong></td>
+            <td><%= product_property.value %></td>
+          </tr>
+        <% end %>
+        <% reset_cycle('properties') %>
+      <% end %>
+    </tbody>
+  </table>

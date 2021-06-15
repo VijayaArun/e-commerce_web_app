@@ -1,0 +1,16 @@
+<% if spree_current_user %>
+  <ul id="login-nav" class="admin-login-nav">
+    <li data-hook="user-account-link" title="<%= spree_current_user.email %>"><!-- 
+       <%= link_to '#' do %> -->
+        <i class='fa fa-user'></i>
+        <%= truncate(spree_current_user.email, :length => 18) %>
+        <% end %>
+    </li>
+    <li data-hook="user-logout-link">
+      <%= link_to spree.logout_path do %>
+        <i class='fa fa-sign-out'></i>
+        <%= Spree.t(:logout) %>
+      <% end %>
+    </li>
+  </ul>
+<% end %>

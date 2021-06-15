@@ -1,0 +1,12 @@
+<%= render :partial => 'spree/admin/taxons/taxon_tabs', :locals => { :current => 'Prices' } %>
+
+<%= form_for @prices, url: admin_taxonomy_taxon_taxon_price_path(@taxonomy.id, @taxon.id, @prices.id) do |f| %>
+  <fieldset>
+    <legend> <%= t('.edit_price') %> </legend>
+    <%= render 'form', f: f %>
+
+    <% if can?(:update, @taxon) %>
+      <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+    <% end %>
+  </fieldset>
+<% end %>

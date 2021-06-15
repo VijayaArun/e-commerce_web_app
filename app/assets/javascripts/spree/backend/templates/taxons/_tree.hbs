@@ -1,0 +1,44 @@
+{{#each taxons}}
+  <li data-taxon-id="{{id}}" data-taxon-taxonomy-id="{{taxonomy_id}}">
+    <div  class="sortable-handle">
+      {{#if (isRootTaxon) }}
+          <select class="siblings-taxonomy fullwidth" onchange="location = this.value;">
+              {{#each ../siblings}}
+                  <option class="taxonomy-opt siblings-opt-{{id}}"
+                          value="{{admin_url}}/taxonomies/{{id}}/category_tree">{{name}}
+                  </option>
+              {{/each}}
+          </select>
+      {{else}}
+        {{#if (isItem) }}
+            <i class="fa fa-arrows"></i>
+            <a href="{{admin_url}}/taxonomies/{{taxonomy_id}}/taxons/{{id}}/edit">{{name}}</a>
+        {{else}}
+            {{#if ../isSubCategory}}
+                <select class="siblings-taxons fullwidth" onchange="location = this.value;">
+                    {{#each ../siblings}}
+                        <option class="taxons-opt siblings-opt-{{id}}"
+                                value="{{admin_url}}/taxonomies/{{taxonomy_id}}/taxons/{{id}}/sub_category_tree">{{name}}
+                        </option>
+                    {{/each}}
+                </select>
+            {{else}}
+                <a href="{{admin_url}}/taxonomies/{{taxonomy_id}}/taxons/{{id}}/sub_category_tree">{{name}}</a>
+            {{/if}}
+        {{/if}}
+        <div class="actions right">
+        {{#unless  ../isSubCategory}}
+              <a href="{{admin_url}}/taxonomies/{{taxonomy_id}}/taxons/{{id}}/edit" class="fa fa-edit icon_link no-text" title = "Edit"></a>
+              {{#if (isItem) }}
+                <a href="#" class="js-taxon-delete fa fa-trash icon_link no-text" title = "Delete"></a>
+              {{/if}}
+        {{/unless }}
+        </div>
+      {{/if}}
+    </div>
+    
+    <ul>
+      {{> taxons/_tree }}
+    </ul>
+  </li>
+{{/each}}

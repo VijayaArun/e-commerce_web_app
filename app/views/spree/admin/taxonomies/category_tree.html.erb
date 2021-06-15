@@ -1,0 +1,31 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:category_list) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:back), spree.admin_taxonomies_path, :icon => 'arrow-left' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:back_to_taxonomies_list), spree.admin_taxonomies_path, :icon => 'arrow-left' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:new_sub_category), spree.new_sub_category_admin_taxons_path + "?parent_id=" + @taxonomy.id.to_s, :icon => 'plus', :id => 'admin_new_taxonomy_link' %>
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:add_item), spree.new_item_admin_taxons_path, { icon: 'plus'} %>
+  </li>
+<% end %>
+
+<%= form_for [:admin, @taxonomy] do |f| %>
+  <div id= "category_tree">
+    <script>
+      Spree.routes.taxonomy_path = "<%= spree.api_taxonomy_path(@taxonomy) %>";
+      Spree.routes.taxonomy_sibling_path = "<%= spree.api_taxonomies_siblings_path %>";
+      Spree.routes.taxonomy_taxons_path = "<%= spree.api_taxonomy_taxons_path(@taxonomy) %>";
+      Spree.routes.admin_taxonomy_taxons_path = "<%= spree.admin_taxonomy_taxons_path(@taxonomy) %>";
+      Spree.routes.isSubCategory = false;
+    </script>
+    <div id="taxonomy_tree" class="tree" data-taxonomy-id="<%= @taxonomy.id %>"></div>
+  </div>
+<% end %>

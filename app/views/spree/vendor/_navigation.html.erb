@@ -1,0 +1,15 @@
+<div class="admin-nav">
+  
+  <header class="admin-nav-header">
+	  <%= link_to '/vendor', class: 'brand-link' do %>
+	    <%= image_tag(Spree::Config[:logo]) %>
+	  <%- end %>
+  </header>
+
+  <div class="admin-nav-sticky">
+  	<%= render partial: 'spree/vendor/menu' %>
+  	 <div class="admin-nav-footer">
+      <%= render partial: 'spree/vendor/navigation_footer' %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+<!-- insert_bottom '#main-nav-bar' original '838e211947e51dd9e5056f685103c00b2094c5d2' -->
+<%= javascript_include_tag 'main_nav_bar' %> 
+<%= stylesheet_link_tag("spree/main_nav_bar") %> 
+
+<li id="currency-select" style="float: right; margin-right: 10px;" data-hook>
+	<%= form_tag('/currency/set') do %>
+	 
+	   <div id="currency-fields">
+	  		<% supported_currencies.each do |currency| %>
+		      	<span class="rate-wrapper">
+			        <label>
+			          <%= radio_button_tag "currency-radio", currency, currency == current_pricing_options.currency, "data-href" => '/currency/set' %>
+			          <% if currency.iso_code == 'INR' %>
+			          	<%= Spree.t(t("net_rate"), :default => t("net_rate")) %>
+			          <% else %>
+			          	<%= Spree.t(currency.name, :default => currency.name) %>
+			          <% end %>
+			        </label>
+		      	</span>
+		      <% end %>
+		</div>
+	  <noscript>
+	    <%= submit_tag %>
+	  </noscript>
+	<% end %>
+</li>	
